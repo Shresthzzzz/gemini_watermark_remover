@@ -4,6 +4,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-brightgreen.svg)](#)
 [![Privacy](https://img.shields.io/badge/Privacy-100%25%20Local%20%26%20Offline-emerald.svg)](#)
 [![Tech](https://img.shields.io/badge/Tech-WebCodecs%20%7C%20HTML5%20Canvas-sky.svg)](#)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FShresthzzzz%2Fgemini_watermark_remover)
 
 A high-performance, 100% client-side web application designed to mathematically unblend and completely remove watermarks from **Google Gemini & Imagen AI images** and **Google Veo AI videos** directly in your browser.
 
