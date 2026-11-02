@@ -1,0 +1,15 @@
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs & temporary files
+*.log
+*.tmp
+__pycache__/
+*.pyc
+
+# Scratch scripts
+test_*.py
+scratch/

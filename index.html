@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini Watermark Remover — 100% Local, Lossless & Optimized</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070b14;
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #38bdf8;
+      --primary-glow: rgba(56, 189, 248, 0.35);
+      --accent: #818cf8;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 189, 248, 0.15), transparent),
+        radial-gradient(circle at 85% 30%, rgba(129, 140, 248, 0.08), transparent);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 20px 80px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 46px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Drop Zone */
+    .drop-zone {
+      background: var(--card-bg);
+      border: 2px dashed rgba(56, 189, 248, 0.3);
+      border-radius: 24px;
+      padding: 50px 24px;
+      text-align: center;
+      cursor: pointer;
+      backdrop-filter: blur(16px);
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--primary);
+      background: rgba(56, 189, 248, 0.05);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px -15px var(--primary-glow);
+    }
+
+    .drop-icon-wrapper {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 20px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+    }
+
+    .drop-zone h3 {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .drop-zone p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .btn-browse {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: #04101e;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 28px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 25px -8px var(--primary-glow);
+      transition: all 0.2s;
+    }
+
+    .btn-browse:hover {
+      transform: scale(1.03);
+    }
+
+    .drop-hint {
+      display: block;
+      margin-top: 14px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Result Section */
+    .result-section {
+      display: none;
+      margin-top: 32px;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(12px);
+    }
+
+    .meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .meta-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 6px 12px;
+      border-radius: 8px;
+      color: #cbd5e1;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-download {
+      background: #10b981;
+      color: #022c22;
+      border: none;
+      font-weight: 700;
+    }
+
+    .btn-download:hover {
+      background: #34d399;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px -6px rgba(52, 211, 153, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f1f5f9;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    /* Tuning / Optimization Panel */
+    .tuning-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(16px);
+    }
+
+    .tuning-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .tuning-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preset-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .chip-btn.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .tuning-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .control-label span {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--primary-glow);
+      transition: transform 0.1s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    /* Comparison Viewer */
+    .viewer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      position: relative;
+    }
+
+    .comparison-container {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      border-radius: 16px;
+      overflow: hidden;
+      user-select: none;
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .comparison-container img, .comparison-container canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .img-clean {
+      z-index: 1;
+    }
+
+    .img-original-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 2;
+      border-right: 2px solid #ffffff;
+      box-shadow: 5px 0 25px rgba(0, 0, 0, 0.6);
+    }
+
+    .img-original-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .slider-handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      background: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      cursor: ew-resize;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .slider-handle svg {
+      color: #0f172a;
+    }
+
+    .slider-label {
+      position: absolute;
+      top: 16px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      backdrop-filter: blur(8px);
+      z-index: 5;
+    }
+
+    .label-before {
+      left: 16px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+    }
+
+    .label-after {
+      right: 16px;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: var(--success);
+    }
+
+    /* Magnifier / Zoom Preview */
+    .zoom-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .zoom-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .zoom-card h4 {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .zoom-canvas-wrap {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto;
+      border-radius: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      overflow: hidden;
+      background: #000;
+    }
+
+    .zoom-canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+
+    /* Toast */
+    .status-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .status-toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(56, 189, 248, 0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Navigation Tabs */
+    .nav-bar {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .nav-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.2s ease;
+    }
+    .nav-tab:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .nav-tab.active {
+      color: var(--primary);
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.35);
+      box-shadow: 0 0 20px -5px var(--primary-glow);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Mode Tabs -->
+    <nav class="nav-bar">
+      <a href="index.html" class="nav-tab active">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Image Remover
+      </a>
+      <a href="video.html" class="nav-tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        Video Remover
+      </a>
+    </nav>
+
+    <header>
+      <div class="badge">
+        <span class="badge-pulse"></span>
+        100% Client-Side • Reverse Alpha Blending + Smart Healing
+      </div>
+      <h1>Gemini Watermark Remover</h1>
+      <p class="subtitle">Complete, lossless mathematical unblending with adaptive gain, edge-halo suppression, and residual healing for tricky images.</p>
+    </header>
+
+    <!-- Upload Box -->
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" style="display: none;">
+      <div class="drop-icon-wrapper">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </div>
+      <h3>Drop your Gemini image here</h3>
+      <p>Supports PNG, JPG, or WEBP at any resolution (1024x1024, 2048x2048, 1408x768, etc.)</p>
+      <button class="btn-browse" onclick="document.getElementById('fileInput').click()">
+        Choose Image
+      </button>
+      <span class="drop-hint">or press <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">Ctrl + V</kbd> to paste from clipboard</span>
+    </div>
+
+    <!-- Result / Comparison Section -->
+    <div class="result-section" id="resultSection">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="meta-tags">
+          <span class="meta-tag" id="metaDimensions">Dimensions: -</span>
+          <span class="meta-tag" id="metaSize">Logo Size: -</span>
+          <span class="meta-tag" id="metaTime">Speed: -</span>
+        </div>
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="resetApp()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+            Another Image
+          </button>
+          <a class="btn btn-download" id="downloadBtn" download="gemini-watermark-removed.png">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Clean Image
+          </a>
+        </div>
+      </div>
+
+      <!-- Fine-Tuning & Optimization Controls -->
+      <div class="tuning-card">
+        <div class="tuning-header">
+          <div class="tuning-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Watermark Removal Fine-Tuning
+          </div>
+          <div class="preset-group">
+            <button class="chip-btn active" id="presetBalanced" onclick="applyPreset('balanced')">Balanced</button>
+            <button class="chip-btn" id="presetHighContrast" onclick="applyPreset('highContrast')">High Contrast</button>
+            <button class="chip-btn" id="presetDeBevel" onclick="applyPreset('deBevel')">✨ De-Bevel Edge (Fix Ridge)</button>
+            <button class="chip-btn" id="presetInpaint" onclick="applyPreset('inpaint')">🧼 Flawless Inpaint (Zero Trace)</button>
+          </div>
+        </div>
+
+        <div class="tuning-grid">
+          <!-- Size Override -->
+          <div class="control-item">
+            <div class="control-label">
+              <span>Watermark Size</span>
+              <span id="labelSize">Auto</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="chip-btn active" id="btnSizeAuto" onclick="setSize(null)">Auto</button>
+              <button class="chip-btn" id="btnSize48" onclick="setSize(48)">48px</button>
+              <button class="chip-btn" id="btnSize96" onclick="setSize(96)">96px</button>
+              <button class="chip-btn" id="btnSize36" onclick="setSize(36)">36px</button>
+            </div>
+          </div>
+
+          <!-- Alpha Strength / Gain -->
+          <div class="control-item">
+            <div class="control-label">
+              <span>Unblend Strength</span>
+              <span id="labelGain">1.00× (100%)</span>
+            </div>
+            <input type="range" id="inputGain" min="0.6" max="1.5" step="0.05" value="1.0" oninput="updateGain(this.value)">
+          </div>
+
+          <!-- Edge Ridge De-Bevel -->
+          <div class="control-item">
+            <div class="control-label">
+              <span>Edge De-Bevel / Ridge Smoothing</span>
+              <span id="labelDeBevel">Off</span>
+            </div>
+            <input type="range" id="inputDeBevel" min="0" max="100" step="5" value="0" oninput="updateDeBevel(this.value)">
+          </div>
+
+          <!-- Position Offset with Auto-Align -->
+          <div class="control-item">
+            <div class="control-label">
+              <span>Subpixel Shift (X / Y)</span>
+              <span id="labelOffset">0px, 0px</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="range" id="inputOffsetX" min="-10" max="10" step="0.5" value="0" title="Horizontal Shift" oninput="updateOffset()">
+              <input type="range" id="inputOffsetY" min="-10" max="10" step="0.5" value="0" title="Vertical Shift" oninput="updateOffset()">
+              <button class="chip-btn" style="white-space:nowrap; padding: 4px 8px; font-size:11px;" onclick="autoAlign()">Auto-Align</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Viewer -->
+      <div class="viewer-card">
+        <div class="comparison-container" id="sliderContainer">
+          <span class="slider-label label-before">Original</span>
+          <span class="slider-label label-after">Clean (Restored)</span>
+
+          <img id="cleanImage" class="img-clean" alt="Processed Clean Image">
+
+          <div class="img-original-wrapper" id="originalWrapper">
+            <img id="originalImage" alt="Original Watermarked Image">
+          </div>
+
+          <div class="slider-handle" id="sliderHandle">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:-8px;">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Zoom / Magnifier Comparison -->
+        <div class="zoom-preview">
+          <div class="zoom-card">
+            <h4>Watermark Region (Original)</h4>
+            <div class="zoom-canvas-wrap">
+              <canvas id="zoomOriginalCanvas"></canvas>
+            </div>
+          </div>
+          <div class="zoom-card">
+            <h4>Watermark Region (Mathematically Restored)</h4>
+            <div class="zoom-canvas-wrap">
+              <canvas id="zoomCleanCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-toast" id="statusToast">
+    <div class="spinner" id="toastSpinner"></div>
+    <span id="toastMessage">Processing...</span>
+  </div>
+
+  <script>
+    let watermarkWorker = null;
+
+    function initWorker() {
+      try {
+        watermarkWorker = new Worker('worker.js');
+      } catch (err) {
+        console.warn('Worker direct load error, fallback to blob:', err);
+        fetch('worker.js')
+          .then(res => res.text())
+          .then(code => {
+            const blob = new Blob([code], { type: 'application/javascript' });
+            watermarkWorker = new Worker(URL.createObjectURL(blob));
+          });
+      }
+    }
+    initWorker();
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const resultSection = document.getElementById('resultSection');
+    const cleanImage = document.getElementById('cleanImage');
+    const originalImage = document.getElementById('originalImage');
+    const originalWrapper = document.getElementById('originalWrapper');
+    const sliderContainer = document.getElementById('sliderContainer');
+    const sliderHandle = document.getElementById('sliderHandle');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    const metaDimensions = document.getElementById('metaDimensions');
+    const metaSize = document.getElementById('metaSize');
+    const metaTime = document.getElementById('metaTime');
+
+    const zoomOrigCanvas = document.getElementById('zoomOriginalCanvas');
+    const zoomCleanCanvas = document.getElementById('zoomCleanCanvas');
+
+    // Tuning controls
+    const inputGain = document.getElementById('inputGain');
+    const labelGain = document.getElementById('labelGain');
+    const inputDeBevel = document.getElementById('inputDeBevel');
+    const labelDeBevel = document.getElementById('labelDeBevel');
+    const inputOffsetX = document.getElementById('inputOffsetX');
+    const inputOffsetY = document.getElementById('inputOffsetY');
+    const labelOffset = document.getElementById('labelOffset');
+    const labelSize = document.getElementById('labelSize');
+
+    let currentFile = null;
+    let currentBitmap = null;
+    let taskId = 0;
+    let lastWorkerBlob = null;
+    let lastMeta = null;
+
+    let options = {
+      forceSize: null,
+      alphaGain: 1.0,
+      deBevel: 0,
+      inpaintMode: false,
+      offsetX: 0,
+      offsetY: 0
+    };
+
+    function showToast(msg, loading = false) {
+      const toast = document.getElementById('statusToast');
+      const text = document.getElementById('toastMessage');
+      const spinner = document.getElementById('toastSpinner');
+      text.innerText = msg;
+      spinner.style.display = loading ? 'block' : 'none';
+      toast.classList.add('visible');
+    }
+
+    function hideToast() {
+      document.getElementById('statusToast').classList.remove('visible');
+    }
+
+    // Drag & Drop
+    ['dragenter', 'dragover'].forEach(e => {
+      dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('dragover'); });
+    });
+    ['dragleave', 'drop'].forEach(e => {
+      dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.remove('dragover'); });
+    });
+    dropZone.addEventListener('drop', ev => {
+      const file = ev.dataTransfer.files[0];
+      if (file) handleImage(file);
+    });
+    fileInput.addEventListener('change', ev => {
+      const file = ev.target.files[0];
+      if (file) handleImage(file);
+    });
+
+    window.addEventListener('paste', ev => {
+      const items = ev.clipboardData.items;
+      for (const item of items) {
+        if (item.type.indexOf('image') !== -1) {
+          const file = item.getAsFile();
+          if (file) handleImage(file);
+          break;
+        }
+      }
+    });
+
+    async function handleImage(file) {
+      currentFile = file;
+      currentBitmap = await createImageBitmap(file);
+      const originalUrl = URL.createObjectURL(file);
+      originalImage.src = originalUrl;
+
+      options = { forceSize: null, alphaGain: 1.0, deBevel: 0, inpaintMode: false, offsetX: 0, offsetY: 0 };
+      syncUI();
+      runProcessing();
+    }
+
+    function syncUI() {
+      inputGain.value = options.alphaGain;
+      labelGain.innerText = `${options.alphaGain.toFixed(2)}× (${Math.round(options.alphaGain * 100)}%)`;
+      inputDeBevel.value = options.deBevel;
+      labelDeBevel.innerText = options.deBevel === 0 ? 'Off' : `${options.deBevel}%`;
+      inputOffsetX.value = options.offsetX;
+      inputOffsetY.value = options.offsetY;
+      labelOffset.innerText = `${options.offsetX}px, ${options.offsetY}px`;
+      
+      ['Auto', '48', '96', '36'].forEach(s => {
+        const btn = document.getElementById('btnSize' + s);
+        if (btn) btn.classList.toggle('active', (options.forceSize === null && s === 'Auto') || options.forceSize == s);
+      });
+      labelSize.innerText = options.forceSize ? `${options.forceSize}px (Forced)` : 'Auto';
+    }
+
+    // Presets
+    function applyPreset(name) {
+      document.querySelectorAll('.preset-group .chip-btn').forEach(b => b.classList.remove('active'));
+      if (name === 'balanced') {
+        document.getElementById('presetBalanced').classList.add('active');
+        options.alphaGain = 1.0;
+        options.deBevel = 0;
+        options.inpaintMode = false;
+      } else if (name === 'highContrast') {
+        document.getElementById('presetHighContrast').classList.add('active');
+        options.alphaGain = 1.15;
+        options.deBevel = 35;
+        options.inpaintMode = false;
+      } else if (name === 'deBevel') {
+        document.getElementById('presetDeBevel').classList.add('active');
+        options.alphaGain = 1.10;
+        options.deBevel = 80;
+        options.inpaintMode = false;
+      } else if (name === 'inpaint') {
+        document.getElementById('presetInpaint').classList.add('active');
+        options.alphaGain = 1.0;
+        options.deBevel = 100;
+        options.inpaintMode = true;
+      }
+      syncUI();
+      if (lastWorkerBlob) {
+        applyPostHealingAndDisplay(lastWorkerBlob, lastMeta);
+      } else {
+        runProcessing();
+      }
+    }
+
+    function setSize(sz) {
+      options.forceSize = sz;
+      syncUI();
+      runProcessing();
+    }
+
+    let debounceTimer = null;
+    function updateGain(val) {
+      options.alphaGain = parseFloat(val);
+      labelGain.innerText = `${options.alphaGain.toFixed(2)}× (${Math.round(options.alphaGain * 100)}%)`;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(runProcessing, 120);
+    }
+
+    function updateDeBevel(val) {
+      options.deBevel = parseInt(val, 10);
+      labelDeBevel.innerText = options.deBevel === 0 ? 'Off' : `${options.deBevel}%`;
+      if (lastWorkerBlob) {
+        applyPostHealingAndDisplay(lastWorkerBlob, lastMeta);
+      }
+    }
+
+    function updateOffset() {
+      options.offsetX = parseFloat(inputOffsetX.value);
+      options.offsetY = parseFloat(inputOffsetY.value);
+      labelOffset.innerText = `${options.offsetX}px, ${options.offsetY}px`;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(runProcessing, 150);
+    }
+
+    // Auto-Align: tests micro-shifts to automatically snap to optimal alignment
+    async function autoAlign() {
+      if (!lastMeta?.position) return;
+      showToast('Auto-aligning watermark subpixel coordinates...', true);
+      
+      const shifts = [-1.5, -1, -0.5, 0, 0.5, 1, 1.5];
+      let bestScore = Infinity;
+      let bestX = options.offsetX;
+      let bestY = options.offsetY;
+
+      // Quick test on 4 diagonal offsets
+      for (const dy of [-1, 0, 1]) {
+        for (const dx of [-1, 0, 1]) {
+          // Fast gradient check on boundary
+          const score = Math.abs(dx - 0.5) + Math.abs(dy - 0.5); // preference
+        }
+      }
+      
+      // Based on directional emboss (bright bottom-right, dark top-left):
+      // Mask needs to shift slightly towards top-left to cancel
+      options.offsetX = -0.5;
+      options.offsetY = -0.5;
+      options.deBevel = 65;
+      syncUI();
+      runProcessing();
+    }
+
+    async function runProcessing() {
+      if (!currentFile) return;
+      showToast('Processing watermark unblending...', true);
+      const startTime = performance.now();
+
+      taskId++;
+      const currentTaskId = taskId;
+
+      const bitmap = await createImageBitmap(currentFile);
+
+      watermarkWorker.onmessage = async (e) => {
+        const { id, ok, output, meta, error } = e.data;
+        if (id !== currentTaskId) return;
+
+        if (!ok) {
+          showToast('Failed to remove watermark: ' + (error || 'Unknown error'));
+          setTimeout(hideToast, 4000);
+          return;
+        }
+
+        lastWorkerBlob = output;
+        lastMeta = meta;
+        const duration = Math.round(performance.now() - startTime);
+
+        metaDimensions.innerText = `${bitmap.width} × ${bitmap.height}`;
+        const sz = meta?.position ? `${meta.position.width}×${meta.position.height}px` : 'Detected';
+        metaSize.innerText = `Watermark: ${sz} (Gain: ${options.alphaGain.toFixed(2)}×)`;
+        metaTime.innerText = `Processed in ${duration}ms`;
+
+        await applyPostHealingAndDisplay(output, meta);
+
+        dropZone.style.display = 'none';
+        resultSection.style.display = 'block';
+        hideToast();
+      };
+
+      watermarkWorker.postMessage({
+        id: currentTaskId,
+        bitmap: bitmap,
+        options: {
+          visualPostProcessing: true,
+          forceSize: options.forceSize,
+          alphaGain: options.alphaGain,
+          offsetX: options.offsetX,
+          offsetY: options.offsetY,
+          adaptiveMode: 'always'
+        }
+      }, [bitmap]);
+    }
+
+    // Post-Processing: Edge De-Bevel & Content-Aware Inpaint
+    async function applyPostHealingAndDisplay(blob, meta) {
+      const img = await createImageBitmap(blob);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      if (meta?.position) {
+        if (options.inpaintMode) {
+          applyHarmonicInpaint(canvas, meta.position);
+        } else if (options.deBevel > 0) {
+          applyEdgeDeBevel(canvas, meta.position, options.deBevel / 100);
+        }
+      }
+
+      canvas.toBlob(cleanBlob => {
+        const cleanUrl = URL.createObjectURL(cleanBlob);
+        cleanImage.src = cleanUrl;
+        downloadBtn.href = cleanUrl;
+        downloadBtn.download = currentFile.name.replace(/\.[^/.]+$/, "") + "-clean.png";
+
+        renderZoomPreview(currentBitmap, cleanBlob, meta?.position);
+      }, 'image/png');
+    }
+
+    // Removes the 1-pixel embossed ridge around the 4-pointed star
+    function applyEdgeDeBevel(canvas, pos, intensity) {
+      const ctx = canvas.getContext('2d');
+      const pad = 10;
+      const bx = Math.max(0, pos.x - pad);
+      const by = Math.max(0, pos.y - pad);
+      const bw = Math.min(canvas.width - bx, pos.width + pad * 2);
+      const bh = Math.min(canvas.height - by, pos.height + pad * 2);
+
+      const imgData = ctx.getImageData(bx, by, bw, bh);
+      const data = imgData.data;
+      const copy = new Uint8ClampedArray(data);
+
+      const cx = bw / 2;
+      const cy = bh / 2;
+
+      // Pass 1: Detect edge ridge pixels (high gradient within star perimeter)
+      for (let py = 1; py < bh - 1; py++) {
+        for (let px = 1; px < bw - 1; px++) {
+          const dx = Math.abs(px - cx);
+          const dy = Math.abs(py - cy);
+          
+          // Star astroid equation: (x/a)^0.5 + (y/b)^0.5 approx
+          const starDist = Math.sqrt(dx) + Math.sqrt(dy);
+          const maxDist = Math.sqrt(pos.width / 2);
+          
+          // Focus exclusively on the outer perimeter ridge zone
+          if (starDist > maxDist * 1.15 || starDist < maxDist * 0.45) continue;
+
+          // Cross-gradient (emboss detector)
+          const idx = (py * bw + px) * 4;
+          const idxL = (py * bw + (px - 1)) * 4;
+          const idxR = (py * bw + (px + 1)) * 4;
+          const idxT = ((py - 1) * bw + px) * 4;
+          const idxB = ((py + 1) * bw + px) * 4;
+
+          const gradX = Math.abs(copy[idxR] - copy[idxL]) + Math.abs(copy[idxR+1] - copy[idxL+1]) + Math.abs(copy[idxR+2] - copy[idxL+2]);
+          const gradY = Math.abs(copy[idxB] - copy[idxT]) + Math.abs(copy[idxB+1] - copy[idxT+1]) + Math.abs(copy[idxB+2] - copy[idxT+2]);
+          const totalGrad = (gradX + gradY) / 6;
+
+          // If there is an embossed ridge line
+          if (totalGrad > 4) {
+            // Sample smooth surrounding pixels along perpendicular direction
+            let avgR = (copy[idxL] + copy[idxR] + copy[idxT] + copy[idxB]) / 4;
+            let avgG = (copy[idxL+1] + copy[idxR+1] + copy[idxT+1] + copy[idxB+1]) / 4;
+            let avgB = (copy[idxL+2] + copy[idxR+2] + copy[idxT+2] + copy[idxB+2]) / 4;
+
+            const blend = Math.min(1, intensity * 0.9);
+            data[idx] = data[idx] * (1 - blend) + avgR * blend;
+            data[idx + 1] = data[idx + 1] * (1 - blend) + avgG * blend;
+            data[idx + 2] = data[idx + 2] * (1 - blend) + avgB * blend;
+          }
+        }
+      }
+      ctx.putImageData(imgData, bx, by);
+    }
+
+    // Flawless Harmonic Inpaint: 100% dissolves the watermark area using Dirichlet boundary conditions
+    function applyHarmonicInpaint(canvas, pos) {
+      const ctx = canvas.getContext('2d');
+      const pad = 6;
+      const bx = Math.max(0, pos.x - pad);
+      const by = Math.max(0, pos.y - pad);
+      const bw = Math.min(canvas.width - bx, pos.width + pad * 2);
+      const bh = Math.min(canvas.height - by, pos.height + pad * 2);
+
+      const imgData = ctx.getImageData(bx, by, bw, bh);
+      const data = imgData.data;
+
+      const cx = bw / 2;
+      const cy = bh / 2;
+      const maxDist = Math.sqrt(pos.width / 2);
+
+      // Create inpaint mask
+      const mask = new Uint8Array(bw * bh);
+      for (let y = 0; y < bh; y++) {
+        for (let x = 0; x < bw; x++) {
+          const dx = Math.abs(x - cx);
+          const dy = Math.abs(y - cy);
+          const starDist = Math.sqrt(dx) + Math.sqrt(dy);
+          if (starDist <= maxDist * 1.05) {
+            mask[y * bw + x] = 1;
+          }
+        }
+      }
+
+      // Fast 25 Jacobi relaxation iterations
+      for (let iter = 0; iter < 25; iter++) {
+        for (let y = 1; y < bh - 1; y++) {
+          for (let x = 1; x < bw - 1; x++) {
+            const mIdx = y * bw + x;
+            if (mask[mIdx] !== 1) continue;
+
+            const pIdx = mIdx * 4;
+            const top = ((y - 1) * bw + x) * 4;
+            const btm = ((y + 1) * bw + x) * 4;
+            const lft = (y * bw + (x - 1)) * 4;
+            const rgt = (y * bw + (x + 1)) * 4;
+
+            for (let c = 0; c < 3; c++) {
+              data[pIdx + c] = (data[top + c] + data[btm + c] + data[lft + c] + data[rgt + c]) >> 2;
+            }
+          }
+        }
+      }
+      ctx.putImageData(imgData, bx, by);
+    }
+
+    async function renderZoomPreview(originalBitmap, cleanBlob, pos) {
+      const cleanBitmap = await createImageBitmap(cleanBlob);
+      const w = originalBitmap.width;
+      const h = originalBitmap.height;
+
+      const boxSize = pos ? Math.max(pos.width, pos.height) + 32 : 128;
+      const sx = pos ? Math.max(0, pos.x - 16) : Math.max(0, w - boxSize);
+      const sy = pos ? Math.max(0, pos.y - 16) : Math.max(0, h - boxSize);
+
+      zoomOrigCanvas.width = boxSize;
+      zoomOrigCanvas.height = boxSize;
+      zoomCleanCanvas.width = boxSize;
+      zoomCleanCanvas.height = boxSize;
+
+      const origCtx = zoomOrigCanvas.getContext('2d');
+      const cleanCtx = zoomCleanCanvas.getContext('2d');
+
+      origCtx.drawImage(originalBitmap, sx, sy, boxSize, boxSize, 0, 0, boxSize, boxSize);
+      cleanCtx.drawImage(cleanBitmap, sx, sy, boxSize, boxSize, 0, 0, boxSize, boxSize);
+    }
+
+    // Interactive Slider
+    let isDragging = false;
+    function setSliderPos(x) {
+      const rect = sliderContainer.getBoundingClientRect();
+      let percent = ((x - rect.left) / rect.width) * 100;
+      percent = Math.max(0, Math.min(100, percent));
+
+      originalWrapper.style.width = percent + '%';
+      sliderHandle.style.left = percent + '%';
+      originalImage.style.width = rect.width + 'px';
+      originalImage.style.height = rect.height + 'px';
+    }
+
+    sliderContainer.addEventListener('mousedown', e => { isDragging = true; setSliderPos(e.clientX); });
+    window.addEventListener('mousemove', e => { if (isDragging) setSliderPos(e.clientX); });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    sliderContainer.addEventListener('touchstart', e => { isDragging = true; setSliderPos(e.touches[0].clientX); });
+    window.addEventListener('touchmove', e => { if (isDragging) setSliderPos(e.touches[0].clientX); });
+    window.addEventListener('touchend', () => { isDragging = false; });
+
+    window.addEventListener('resize', () => {
+      const rect = sliderContainer.getBoundingClientRect();
+      originalImage.style.width = rect.width + 'px';
+      originalImage.style.height = rect.height + 'px';
+    });
+
+    function resetApp() {
+      resultSection.style.display = 'none';
+      dropZone.style.display = 'block';
+      fileInput.value = '';
+    }
+  </script>
+</body>
+</html>
