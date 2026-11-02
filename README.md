@@ -1,10 +1,14 @@
 # 🌟 Gemini & Veo Watermark Remover (100% Local & Lossless)
 
+[![Live Demo](https://img.shields.io/badge/Demo-Live%20on%20Vercel-success?style=for-the-badge&logo=vercel&logoColor=white)](https://geminiwatermarkremover-xi.vercel.app/)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-brightgreen.svg)](#)
 [![Privacy](https://img.shields.io/badge/Privacy-100%25%20Local%20%26%20Offline-emerald.svg)](#)
 [![Tech](https://img.shields.io/badge/Tech-WebCodecs%20%7C%20HTML5%20Canvas-sky.svg)](#)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FShresthzzzz%2Fgemini_watermark_remover)
+
+> 🚀 **Live Demo**: **[https://geminiwatermarkremover-xi.vercel.app/](https://geminiwatermarkremover-xi.vercel.app/)**
 
 A high-performance, 100% client-side web application designed to mathematically unblend and completely remove watermarks from **Google Gemini & Imagen AI images** and **Google Veo AI videos** directly in your browser.
 
@@ -38,9 +42,17 @@ GPU-accelerated WebCodecs processing (`VideoDecoder` / `VideoEncoder`) with temp
 
 ---
 
-## 🚀 Quick Start Guide (Windows)
+## 🚀 Quick Start Guide
 
-### Method 1: One-Click Run (Easiest)
+### 🌐 Try Online (No Setup Required)
+Access the live deployment directly in your browser:
+**👉 [https://geminiwatermarkremover-xi.vercel.app/](https://geminiwatermarkremover-xi.vercel.app/)**
+
+---
+
+### Local Setup (Windows)
+
+#### Method 1: One-Click Run (Easiest)
 1. Clone or download this repository:
    ```bash
    git clone https://github.com/Shresthzzzz/gemini_watermark_remover.git
